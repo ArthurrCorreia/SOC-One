@@ -38,7 +38,8 @@ def markdown_report(report):
 
     alert, document = report['alerta'], report['documento']
     facts = report['dados_objetivos']
-    parts = ['# SOC-One — Relatório de investigação', report['aviso']]
+    parts = ['# SOC-One — Relatório de investigação', report['aviso'],
+             '## Ambiente dos dados', block(report.get('ambiente', {'tipo': 'não informado'}))]
     parts += ['## Identificação e estado atual']
     for title, value in [
         ('Identificador', alert['id']), ('Regra', alert['rule']),

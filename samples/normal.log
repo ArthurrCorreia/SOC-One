@@ -1,0 +1,3 @@
+Nov  3 09:00:00 lab-ssh sshd[100]: Accepted publickey for ana from 192.0.2.10 port 50100 ssh2
+Nov  3 09:00:02 lab-ssh sshd[100]: pam_unix(sshd:session): session opened for user ana
+Nov  3 09:01:00 lab-ssh CRON[101]: (root) CMD (daily-maintenance)

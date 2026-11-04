@@ -1,0 +1,460 @@
+# SOC-One — Relatório de investigação
+
+Detecção indica suspeita; a classificação é manual. Dados ausentes não foram inferidos.
+
+## Ambiente dos dados
+
+    {
+      "tipo": "simulado",
+      "cenario": "false_positive",
+      "descricao": "Falso positivo (exercício) — dados inteiramente fictícios."
+    }
+
+## Identificação e estado atual
+
+### Identificador
+
+    5315c7e69105b3b48a80ed40faa14253d930a01a4197d72e03245f6b32c04af0
+
+### Regra
+
+    SSH-002
+
+### Severidade
+
+    Crítica
+
+### Status
+
+    Encerrado
+
+### Classificação
+
+    Falso positivo
+
+### Host
+
+    lab-ssh
+
+### IP de origem
+
+    192.0.2.40
+
+### Evento disparador (UTC)
+
+    2026-11-03T12:02:00+00:00
+
+### Observações de triagem
+
+    EXEMPLO FICTÍCIO: análise baseada nos logs simulados e no enunciado do cenário.
+
+### Justificativa de encerramento
+
+    Exercício: o enunciado informa erros de digitação reconhecidos pela usuária. Não houve validação com pessoas reais.
+
+## Controle do documento
+
+Versão: 1. Narrativa preenchida manualmente pelo analista.
+
+Salvo em (UTC):
+
+    2026-11-04T02:32:36.122973+00:00
+
+Exportado em (UTC):
+
+    2026-11-04T02:32:36.124508+00:00
+
+Os dados objetivos correspondem à correlação atual.
+
+Alerta, triagem, playbook e histórico refletem o estado atual; os dados objetivos são da última gravação do relatório, ou da consulta se não salvo.
+
+## Regra e referências ATT&CK
+
+    {
+      "description": "Possível uso indevido de conta; não confirma comprometimento.",
+      "detection": {
+        "event": "success",
+        "group_by": [
+          "ip",
+          "host",
+          "username"
+        ],
+        "threshold": 3,
+        "window_seconds": 300
+      },
+      "falsepositives": [
+        "Usuário legítimo corrigindo senha",
+        "Automação corrigida"
+      ],
+      "id": "SSH-002",
+      "level": "critical",
+      "logsource": {
+        "product": "linux",
+        "service": "sshd"
+      },
+      "references": [
+        "https://attack.mitre.org/techniques/T1110/",
+        "https://attack.mitre.org/techniques/T1078/"
+      ],
+      "revision": 2,
+      "severity": "Crítica",
+      "status": "experimental",
+      "tags": [
+        "attack.t1110",
+        "attack.t1078"
+      ],
+      "title": "Sucesso após falhas para a mesma conta"
+    }
+
+## Resumo dos dados objetivos
+
+Intervalo dos eventos (UTC):
+
+    {
+      "inicio": "2026-11-03T12:00:00+00:00",
+      "fim": "2026-11-03T12:02:00+00:00"
+    }
+
+IPs, hosts e contas extraídos dos eventos:
+
+    {
+      "ips": [
+        "192.0.2.40"
+      ],
+      "hosts": [
+        "lab-ssh"
+      ],
+      "usuarios": [
+        "maria"
+      ]
+    }
+
+## Linha do tempo dos eventos
+
+    [
+      {
+        "host": "lab-ssh",
+        "id": "20e91bd7a3eadc5b1b073d1c221a0bb0eb9d5c4b20f9fb82ad889cbb140cad50",
+        "ip": "192.0.2.40",
+        "kind": "failure",
+        "timestamp": "2026-11-03T12:00:00+00:00",
+        "username": "maria"
+      },
+      {
+        "host": "lab-ssh",
+        "id": "640b74610d3680412a435b2b9d26b963763cf6b06d4192915283d2d15dce58dc",
+        "ip": "192.0.2.40",
+        "kind": "failure",
+        "timestamp": "2026-11-03T12:00:30+00:00",
+        "username": "maria"
+      },
+      {
+        "host": "lab-ssh",
+        "id": "361fee68de1f8b816051289fde24f8a28fb80d40e6c845abeb395f297a9155b1",
+        "ip": "192.0.2.40",
+        "kind": "failure",
+        "timestamp": "2026-11-03T12:01:00+00:00",
+        "username": "maria"
+      },
+      {
+        "host": "lab-ssh",
+        "id": "7f1457c717129b46a9796ff0be0c220c0dcfa1a8c74481de4197fe6746ac5981",
+        "ip": "192.0.2.40",
+        "kind": "success",
+        "timestamp": "2026-11-03T12:02:00+00:00",
+        "username": "maria"
+      }
+    ]
+
+## Investigação manual
+
+Ausência de conteúdo significa não informado. Ações e conclusões não são geradas automaticamente.
+
+### Descrição do ocorrido
+
+    EXEMPLO FICTÍCIO. Três falhas e um sucesso SSH para maria, no host lab-ssh, a partir de 192.0.2.40.
+
+### Linha do tempo da investigação
+
+    12:00–12:01 UTC: três falhas nos logs simulados. 12:02 UTC: autenticação bem-sucedida. A revisão abaixo é uma demonstração manual, sem atividade externa.
+
+### Evidências adicionais e suas fontes
+
+    Fonte contextual: enunciado do cenário Falso positivo (exercício), em soc_one/demo.py. O enunciado informa erros de digitação após troca de senha; esse fato não é dedutível dos logs.
+
+### Indicadores adicionais e suas fontes
+
+    192.0.2.40, maria e lab-ssh são identificadores fictícios, não indicadores de ameaça confirmados.
+
+### Impacto observado
+
+    Não demonstrado pelas evidências disponíveis. Ausência de dados de sessão impede avaliar ações posteriores.
+
+### Análise
+
+    A condição SSH-002 foi atendida. No contexto fictício fornecido pelo exercício, a atividade é legítima; por isso a classificação manual é Falso positivo.
+
+### Ações realizadas
+
+    Somente nesta demonstração: revisão das quatro linhas simuladas, leitura do enunciado, preenchimento da triagem e registro de etapas no playbook. Nenhum contato, bloqueio ou contenção real foi realizado.
+
+### Conclusão
+
+    Exercício encerrado como falso positivo com base no contexto explicitamente simulado. Este documento não comprova uma investigação ou incidente real.
+
+## Playbook — estado atual
+
+- [x] N1 · Validar horários UTC, origem, host e integridade das linhas de evidência.
+
+- [x] N1 · Consultar inventário e atividade autorizada; registrar a fonte da confirmação.
+
+- [x] N1 · Validar com o responsável se a conta, a origem e o sucesso são reconhecidos.
+
+- [ ] N1 · Solicitar registros da sessão ao N2 se houver atividade não reconhecida; não presumir execução de comandos.
+
+- [x] N1 · Registrar evidências, classificação e lacunas; justificar encerramento ou escalonamento.
+
+- [ ] N1 → N2 · Se houver suspeita não esclarecida, registrar escopo, IPs, contas, horários e motivo; encaminhar conforme procedimento local. Se não aplicável, justificar nas observações.
+
+- [ ] N2 · Após escalonamento, validar a hipótese com fontes adicionais e decidir contenção autorizada. Registrar retorno ou não aplicabilidade; nenhuma ação é automática.
+
+## Evidências e proveniência
+
+Linhas dos logs e IDs de eventos:
+
+    [
+      {
+        "host": "lab-ssh",
+        "id": "20e91bd7a3eadc5b1b073d1c221a0bb0eb9d5c4b20f9fb82ad889cbb140cad50",
+        "ip": "192.0.2.40",
+        "kind": "failure",
+        "raw": "Nov  3 12:00:00 lab-ssh sshd[401]: Failed password for maria from 192.0.2.40 port 53001 ssh2",
+        "service": "sshd",
+        "timestamp": "2026-11-03T12:00:00+00:00",
+        "username": "maria"
+      },
+      {
+        "host": "lab-ssh",
+        "id": "640b74610d3680412a435b2b9d26b963763cf6b06d4192915283d2d15dce58dc",
+        "ip": "192.0.2.40",
+        "kind": "failure",
+        "raw": "Nov  3 12:00:30 lab-ssh sshd[402]: Failed password for maria from 192.0.2.40 port 53002 ssh2",
+        "service": "sshd",
+        "timestamp": "2026-11-03T12:00:30+00:00",
+        "username": "maria"
+      },
+      {
+        "host": "lab-ssh",
+        "id": "361fee68de1f8b816051289fde24f8a28fb80d40e6c845abeb395f297a9155b1",
+        "ip": "192.0.2.40",
+        "kind": "failure",
+        "raw": "Nov  3 12:01:00 lab-ssh sshd[403]: Failed password for maria from 192.0.2.40 port 53003 ssh2",
+        "service": "sshd",
+        "timestamp": "2026-11-03T12:01:00+00:00",
+        "username": "maria"
+      },
+      {
+        "host": "lab-ssh",
+        "id": "7f1457c717129b46a9796ff0be0c220c0dcfa1a8c74481de4197fe6746ac5981",
+        "ip": "192.0.2.40",
+        "kind": "success",
+        "raw": "Nov  3 12:02:00 lab-ssh sshd[404]: Accepted password for maria from 192.0.2.40 port 53004 ssh2",
+        "service": "sshd",
+        "timestamp": "2026-11-03T12:02:00+00:00",
+        "username": "maria"
+      }
+    ]
+
+Origem de importação (nome informado, linha, SHA-256 do texto UTF-8 e parâmetros):
+
+    [
+      {
+        "assumed_year": 2026,
+        "digest": "8f8dbd39b15995e3a6f5f7ebde0ad6fdb1585a3fedee6a1baafa37ab147264a4",
+        "event_id": "20e91bd7a3eadc5b1b073d1c221a0bb0eb9d5c4b20f9fb82ad889cbb140cad50",
+        "line": 1,
+        "source": "false_positive.log",
+        "utc_offset": 0
+      },
+      {
+        "assumed_year": 2026,
+        "digest": "8f8dbd39b15995e3a6f5f7ebde0ad6fdb1585a3fedee6a1baafa37ab147264a4",
+        "event_id": "361fee68de1f8b816051289fde24f8a28fb80d40e6c845abeb395f297a9155b1",
+        "line": 3,
+        "source": "false_positive.log",
+        "utc_offset": 0
+      },
+      {
+        "assumed_year": 2026,
+        "digest": "8f8dbd39b15995e3a6f5f7ebde0ad6fdb1585a3fedee6a1baafa37ab147264a4",
+        "event_id": "640b74610d3680412a435b2b9d26b963763cf6b06d4192915283d2d15dce58dc",
+        "line": 2,
+        "source": "false_positive.log",
+        "utc_offset": 0
+      },
+      {
+        "assumed_year": 2026,
+        "digest": "8f8dbd39b15995e3a6f5f7ebde0ad6fdb1585a3fedee6a1baafa37ab147264a4",
+        "event_id": "7f1457c717129b46a9796ff0be0c220c0dcfa1a8c74481de4197fe6746ac5981",
+        "line": 4,
+        "source": "false_positive.log",
+        "utc_offset": 0
+      }
+    ]
+
+Eventos legados sem origem de importação registrada:
+
+    []
+
+## Histórico de alterações
+
+    [
+      {
+        "id": 1,
+        "alert_id": "5315c7e69105b3b48a80ed40faa14253d930a01a4197d72e03245f6b32c04af0",
+        "timestamp": "2026-11-04T02:32:36.119173+00:00",
+        "actor": "Sistema",
+        "action": "detecção",
+        "antes": {},
+        "depois": {
+          "active": 1,
+          "evidence": "[\"20e91bd7a3eadc5b1b073d1c221a0bb0eb9d5c4b20f9fb82ad889cbb140cad50\", \"640b74610d3680412a435b2b9d26b963763cf6b06d4192915283d2d15dce58dc\", \"361fee68de1f8b816051289fde24f8a28fb80d40e6c845abeb395f297a9155b1\", \"7f1457c717129b46a9796ff0be0c220c0dcfa1a8c74481de4197fe6746ac5981\"]",
+          "host": "lab-ssh",
+          "id": "5315c7e69105b3b48a80ed40faa14253d930a01a4197d72e03245f6b32c04af0",
+          "ip": "192.0.2.40",
+          "metadata": "{\"description\": \"Possível uso indevido de conta; não confirma comprometimento.\", \"detection\": {\"event\": \"success\", \"group_by\": [\"ip\", \"host\", \"username\"], \"threshold\": 3, \"window_seconds\": 300}, \"falsepositives\": [\"Usuário legítimo corrigindo senha\", \"Automação corrigida\"], \"id\": \"SSH-002\", \"level\": \"critical\", \"logsource\": {\"product\": \"linux\", \"service\": \"sshd\"}, \"references\": [\"https://attack.mitre.org/techniques/T1110/\", \"https://attack.mitre.org/techniques/T1078/\"], \"revision\": 2, \"severity\": \"Crítica\", \"status\": \"experimental\", \"tags\": [\"attack.t1110\", \"attack.t1078\"], \"title\": \"Sucesso após falhas para a mesma conta\"}",
+          "rule": "SSH-002",
+          "severity": "Crítica",
+          "timestamp": "2026-11-03T12:02:00+00:00"
+        }
+      },
+      {
+        "id": 2,
+        "alert_id": "5315c7e69105b3b48a80ed40faa14253d930a01a4197d72e03245f6b32c04af0",
+        "timestamp": "2026-11-04T02:32:36.120689+00:00",
+        "actor": "Analista local",
+        "action": "triagem",
+        "antes": {
+          "alert_id": "5315c7e69105b3b48a80ed40faa14253d930a01a4197d72e03245f6b32c04af0",
+          "classification": "Não classificado",
+          "justification": "",
+          "notes": "",
+          "status": "Novo",
+          "updated_at": null,
+          "version": 0
+        },
+        "depois": {
+          "alert_id": "5315c7e69105b3b48a80ed40faa14253d930a01a4197d72e03245f6b32c04af0",
+          "classification": "Falso positivo",
+          "justification": "Exercício: o enunciado informa erros de digitação reconhecidos pela usuária. Não houve validação com pessoas reais.",
+          "notes": "EXEMPLO FICTÍCIO: análise baseada nos logs simulados e no enunciado do cenário.",
+          "status": "Encerrado",
+          "updated_at": "2026-11-04T02:32:36.120541+00:00",
+          "version": 1
+        }
+      },
+      {
+        "id": 3,
+        "alert_id": "5315c7e69105b3b48a80ed40faa14253d930a01a4197d72e03245f6b32c04af0",
+        "timestamp": "2026-11-04T02:32:36.121697+00:00",
+        "actor": "Analista local",
+        "action": "playbook",
+        "antes": {
+          "etapas": [
+            {
+              "concluida": false,
+              "id": "validate",
+              "procedimento": "N1 · Validar horários UTC, origem, host e integridade das linhas de evidência."
+            },
+            {
+              "concluida": false,
+              "id": "context",
+              "procedimento": "N1 · Consultar inventário e atividade autorizada; registrar a fonte da confirmação."
+            },
+            {
+              "concluida": false,
+              "id": "account",
+              "procedimento": "N1 · Validar com o responsável se a conta, a origem e o sucesso são reconhecidos."
+            },
+            {
+              "concluida": false,
+              "id": "activity",
+              "procedimento": "N1 · Solicitar registros da sessão ao N2 se houver atividade não reconhecida; não presumir execução de comandos."
+            },
+            {
+              "concluida": false,
+              "id": "assess",
+              "procedimento": "N1 · Registrar evidências, classificação e lacunas; justificar encerramento ou escalonamento."
+            },
+            {
+              "concluida": false,
+              "id": "handoff",
+              "procedimento": "N1 → N2 · Se houver suspeita não esclarecida, registrar escopo, IPs, contas, horários e motivo; encaminhar conforme procedimento local. Se não aplicável, justificar nas observações."
+            },
+            {
+              "concluida": false,
+              "id": "n2",
+              "procedimento": "N2 · Após escalonamento, validar a hipótese com fontes adicionais e decidir contenção autorizada. Registrar retorno ou não aplicabilidade; nenhuma ação é automática."
+            }
+          ],
+          "updated_at": null,
+          "version": 0
+        },
+        "depois": {
+          "etapas": [
+            {
+              "concluida": true,
+              "id": "validate",
+              "procedimento": "N1 · Validar horários UTC, origem, host e integridade das linhas de evidência."
+            },
+            {
+              "concluida": true,
+              "id": "context",
+              "procedimento": "N1 · Consultar inventário e atividade autorizada; registrar a fonte da confirmação."
+            },
+            {
+              "concluida": true,
+              "id": "account",
+              "procedimento": "N1 · Validar com o responsável se a conta, a origem e o sucesso são reconhecidos."
+            },
+            {
+              "concluida": false,
+              "id": "activity",
+              "procedimento": "N1 · Solicitar registros da sessão ao N2 se houver atividade não reconhecida; não presumir execução de comandos."
+            },
+            {
+              "concluida": true,
+              "id": "assess",
+              "procedimento": "N1 · Registrar evidências, classificação e lacunas; justificar encerramento ou escalonamento."
+            },
+            {
+              "concluida": false,
+              "id": "handoff",
+              "procedimento": "N1 → N2 · Se houver suspeita não esclarecida, registrar escopo, IPs, contas, horários e motivo; encaminhar conforme procedimento local. Se não aplicável, justificar nas observações."
+            },
+            {
+              "concluida": false,
+              "id": "n2",
+              "procedimento": "N2 · Após escalonamento, validar a hipótese com fontes adicionais e decidir contenção autorizada. Registrar retorno ou não aplicabilidade; nenhuma ação é automática."
+            }
+          ],
+          "updated_at": "2026-11-04T02:32:36.121490+00:00",
+          "version": 1
+        }
+      },
+      {
+        "id": 4,
+        "alert_id": "5315c7e69105b3b48a80ed40faa14253d930a01a4197d72e03245f6b32c04af0",
+        "timestamp": "2026-11-04T02:32:36.123194+00:00",
+        "actor": "Analista local",
+        "action": "relatório",
+        "antes": {},
+        "depois": {
+          "alert_id": "5315c7e69105b3b48a80ed40faa14253d930a01a4197d72e03245f6b32c04af0",
+          "fields": "{\"acoes\": \"Somente nesta demonstração: revisão das quatro linhas simuladas, leitura do enunciado, preenchimento da triagem e registro de etapas no playbook. Nenhum contato, bloqueio ou contenção real foi realizado.\", \"analise\": \"A condição SSH-002 foi atendida. No contexto fictício fornecido pelo exercício, a atividade é legítima; por isso a classificação manual é Falso positivo.\", \"conclusao\": \"Exercício encerrado como falso positivo com base no contexto explicitamente simulado. Este documento não comprova uma investigação ou incidente real.\", \"descricao\": \"EXEMPLO FICTÍCIO. Três falhas e um sucesso SSH para maria, no host lab-ssh, a partir de 192.0.2.40.\", \"evidencias_adicionais\": \"Fonte contextual: enunciado do cenário Falso positivo (exercício), em soc_one/demo.py. O enunciado informa erros de digitação após troca de senha; esse fato não é dedutível dos logs.\", \"impacto\": \"Não demonstrado pelas evidências disponíveis. Ausência de dados de sessão impede avaliar ações posteriores.\", \"indicadores\": \"192.0.2.40, maria e lab-ssh são identificadores fictícios, não indicadores de ameaça confirmados.\", \"linha_do_tempo\": \"12:00–12:01 UTC: três falhas nos logs simulados. 12:02 UTC: autenticação bem-sucedida. A revisão abaixo é uma demonstração manual, sem atividade externa.\"}",
+          "snapshot": "{\"eventos\": [{\"host\": \"lab-ssh\", \"id\": \"20e91bd7a3eadc5b1b073d1c221a0bb0eb9d5c4b20f9fb82ad889cbb140cad50\", \"ip\": \"192.0.2.40\", \"kind\": \"failure\", \"raw\": \"Nov  3 12:00:00 lab-ssh sshd[401]: Failed password for maria from 192.0.2.40 port 53001 ssh2\", \"service\": \"sshd\", \"timestamp\": \"2026-11-03T12:00:00+00:00\", \"username\": \"maria\"}, {\"host\": \"lab-ssh\", \"id\": \"640b74610d3680412a435b2b9d26b963763cf6b06d4192915283d2d15dce58dc\", \"ip\": \"192.0.2.40\", \"kind\": \"failure\", \"raw\": \"Nov  3 12:00:30 lab-ssh sshd[402]: Failed password for maria from 192.0.2.40 port 53002 ssh2\", \"service\": \"sshd\", \"timestamp\": \"2026-11-03T12:00:30+00:00\", \"username\": \"maria\"}, {\"host\": \"lab-ssh\", \"id\": \"361fee68de1f8b816051289fde24f8a28fb80d40e6c845abeb395f297a9155b1\", \"ip\": \"192.0.2.40\", \"kind\": \"failure\", \"raw\": \"Nov  3 12:01:00 lab-ssh sshd[403]: Failed password for maria from 192.0.2.40 port 53003 ssh2\", \"service\": \"sshd\", \"timestamp\": \"2026-11-03T12:01:00+00:00\", \"username\": \"maria\"}, {\"host\": \"lab-ssh\", \"id\": \"7f1457c717129b46a9796ff0be0c220c0dcfa1a8c74481de4197fe6746ac5981\", \"ip\": \"192.0.2.40\", \"kind\": \"success\", \"raw\": \"Nov  3 12:02:00 lab-ssh sshd[404]: Accepted password for maria from 192.0.2.40 port 53004 ssh2\", \"service\": \"sshd\", \"timestamp\": \"2026-11-03T12:02:00+00:00\", \"username\": \"maria\"}], \"fim_utc\": \"2026-11-03T12:02:00+00:00\", \"fontes\": [{\"assumed_year\": 2026, \"digest\": \"8f8dbd39b15995e3a6f5f7ebde0ad6fdb1585a3fedee6a1baafa37ab147264a4\", \"event_id\": \"20e91bd7a3eadc5b1b073d1c221a0bb0eb9d5c4b20f9fb82ad889cbb140cad50\", \"line\": 1, \"source\": \"false_positive.log\", \"utc_offset\": 0}, {\"assumed_year\": 2026, \"digest\": \"8f8dbd39b15995e3a6f5f7ebde0ad6fdb1585a3fedee6a1baafa37ab147264a4\", \"event_id\": \"361fee68de1f8b816051289fde24f8a28fb80d40e6c845abeb395f297a9155b1\", \"line\": 3, \"source\": \"false_positive.log\", \"utc_offset\": 0}, {\"assumed_year\": 2026, \"digest\": \"8f8dbd39b15995e3a6f5f7ebde0ad6fdb1585a3fedee6a1baafa37ab147264a4\", \"event_id\": \"640b74610d3680412a435b2b9d26b963763cf6b06d4192915283d2d15dce58dc\", \"line\": 2, \"source\": \"false_positive.log\", \"utc_offset\": 0}, {\"assumed_year\": 2026, \"digest\": \"8f8dbd39b15995e3a6f5f7ebde0ad6fdb1585a3fedee6a1baafa37ab147264a4\", \"event_id\": \"7f1457c717129b46a9796ff0be0c220c0dcfa1a8c74481de4197fe6746ac5981\", \"line\": 4, \"source\": \"false_positive.log\", \"utc_offset\": 0}], \"fontes_ausentes\": [], \"hosts\": [\"lab-ssh\"], \"inicio_utc\": \"2026-11-03T12:00:00+00:00\", \"ips\": [\"192.0.2.40\"], \"linha_do_tempo\": [{\"host\": \"lab-ssh\", \"id\": \"20e91bd7a3eadc5b1b073d1c221a0bb0eb9d5c4b20f9fb82ad889cbb140cad50\", \"ip\": \"192.0.2.40\", \"kind\": \"failure\", \"timestamp\": \"2026-11-03T12:00:00+00:00\", \"username\": \"maria\"}, {\"host\": \"lab-ssh\", \"id\": \"640b74610d3680412a435b2b9d26b963763cf6b06d4192915283d2d15dce58dc\", \"ip\": \"192.0.2.40\", \"kind\": \"failure\", \"timestamp\": \"2026-11-03T12:00:30+00:00\", \"username\": \"maria\"}, {\"host\": \"lab-ssh\", \"id\": \"361fee68de1f8b816051289fde24f8a28fb80d40e6c845abeb395f297a9155b1\", \"ip\": \"192.0.2.40\", \"kind\": \"failure\", \"timestamp\": \"2026-11-03T12:01:00+00:00\", \"username\": \"maria\"}, {\"host\": \"lab-ssh\", \"id\": \"7f1457c717129b46a9796ff0be0c220c0dcfa1a8c74481de4197fe6746ac5981\", \"ip\": \"192.0.2.40\", \"kind\": \"success\", \"timestamp\": \"2026-11-03T12:02:00+00:00\", \"username\": \"maria\"}], \"origem\": \"Campos extraídos dos eventos abaixo; não constituem avaliação do analista.\", \"regra\": {\"description\": \"Possível uso indevido de conta; não confirma comprometimento.\", \"detection\": {\"event\": \"success\", \"group_by\": [\"ip\", \"host\", \"username\"], \"threshold\": 3, \"window_seconds\": 300}, \"falsepositives\": [\"Usuário legítimo corrigindo senha\", \"Automação corrigida\"], \"id\": \"SSH-002\", \"level\": \"critical\", \"logsource\": {\"product\": \"linux\", \"service\": \"sshd\"}, \"references\": [\"https://attack.mitre.org/techniques/T1110/\", \"https://attack.mitre.org/techniques/T1078/\"], \"revision\": 2, \"severity\": \"Crítica\", \"status\": \"experimental\", \"tags\": [\"attack.t1110\", \"attack.t1078\"], \"title\": \"Sucesso após falhas para a mesma conta\"}, \"usuarios\": [\"maria\"]}",
+          "updated_at": "2026-11-04T02:32:36.122973+00:00",
+          "version": 1
+        }
+      }
+    ]

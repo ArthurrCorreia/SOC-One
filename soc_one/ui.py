@@ -30,7 +30,7 @@ def filter_dates(rows, key, title):
     return [row for row, day in zip(rows, dates) if period[0] <= day <= period[1]]
 
 
-def render_investigation(store, alert):
+def render_investigation(store, alert, *, report_only=False):
     selected = alert['id']
     prefix = f'investigation-{selected}-'
     if st.button('Recarregar investigação', key=prefix + 'reload'):
@@ -39,6 +39,10 @@ def render_investigation(store, alert):
                 del st.session_state[key]
         st.rerun()
     report = store.report(selected)
+    if report_only:
+        render_report(store, selected, prefix, report)
+        render_history(report)
+        return
     st.subheader(report['regra'].get('title', alert['rule']))
     st.caption(f"{alert['host']} · {alert['ip']} · {alert['timestamp']} · ID {selected}")
     if not alert['active']:
@@ -48,7 +52,12 @@ def render_investigation(store, alert):
     st.caption('MITRE ATT&CK (hipóteses): ' + ', '.join(tags))
     evidence_ids = set(json.loads(alert['evidence']))
     st.write('Evidências da correlação atual')
-    st.dataframe([e for e in store.events() if e['id'] in evidence_ids], width='stretch', hide_index=True)
+    evidence = [e for e in store.events() if e['id'] in evidence_ids]
+    st.dataframe([{k: e[k] for k in ('timestamp', 'host', 'ip', 'username', 'kind')} for e in evidence], width='stretch', hide_index=True)
+    with st.expander('Linhas originais e identificadores das evidências'):
+        for event in evidence:
+            st.caption(event['id'])
+            st.code(event['raw'], language=None)
     with st.expander('Metadados da regra'):
         st.json(report['regra'])
     st.session_state.setdefault(prefix + 'triage-version', alert['version'])
@@ -79,6 +88,11 @@ def render_investigation(store, alert):
                 st.rerun()
             except ValueError as exc:
                 st.error(str(exc))
+    st.info('Para documentar a investigação e exportar, abra a página Relatórios no menu superior.')
+    render_history(report)
+
+
+def render_report(store, selected, prefix, report):
     st.subheader('Relatório de investigação')
     document = report['documento']
     st.caption(f"Versão salva: {document['version']} · Atualizado em: {document['salvo_em'] or 'Ainda não salvo'}")
@@ -101,6 +115,9 @@ def render_investigation(store, alert):
     st.caption('A exportação inclui a narrativa salva. Alterações ainda não salvas no formulário não são exportadas.')
     st.download_button('Exportar JSON', json.dumps(report, indent=2, ensure_ascii=False), f'soc-one-{selected[:12]}.json', 'application/json')
     st.download_button('Exportar Markdown', markdown_report(report), f'soc-one-{selected[:12]}.md', 'text/markdown')
+
+
+def render_history(report):
     with st.expander('Histórico de alterações'):
         for entry in reversed(report['historico']):
             st.text(f"#{entry['id']} · {entry['timestamp']} · {entry['actor']} · {entry['action']}")

@@ -26,7 +26,8 @@ def encode(value):
 
 
 class Store:
-    def __init__(self, path='data/soc_one.db'):
+    def __init__(self, path='data/soc_one.db', context=None):
+        self.context = context or {'tipo': 'local', 'descricao': 'Dados locais/importados; podem incluir demonstrações de versões anteriores.'}
         self.path = str(path)
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         with self.connection() as db:
@@ -85,6 +86,11 @@ class Store:
                 self._history(db, key, 'detecção_arquivada', previous, previous | {'active': 0}, 'Sistema')
 
     def import_text(self, text, year, utc_offset=0, source='Importação manual'):
+        with self.connection() as db:
+            db.execute('BEGIN IMMEDIATE')
+            return self._import_text(db, text, year, utc_offset, source)
+
+    def _import_text(self, db, text, year, utc_offset=0, source='Importação manual'):
         parsed, invalid = [], 0
         digest = hashlib.sha256(text.encode('utf-8')).hexdigest()
         for number, line in enumerate(text.splitlines(), 1):
@@ -95,19 +101,17 @@ class Store:
                 parsed.append((event, number))
             else:
                 invalid += 1
-        with self.connection() as db:
-            db.execute('BEGIN IMMEDIATE')
-            before = db.execute('SELECT count(*) FROM events').fetchone()[0]
-            before_alerts = db.execute('SELECT count(*) FROM alerts').fetchone()[0]
-            for event, number in parsed:
-                record = asdict(event)
-                record['timestamp'] = event.timestamp.isoformat()
-                db.execute('INSERT OR IGNORE INTO events VALUES (:id,:timestamp,:host,:ip,:username,:service,:kind,:raw)', record)
-                db.execute('INSERT OR IGNORE INTO event_sources VALUES (?,?,?,?,?,?)',
-                           (event.id, digest, Path(source).name, number, year, utc_offset))
-            total = db.execute('SELECT count(*) FROM events').fetchone()[0]
-            self._reconcile(db)
-            count_alerts = db.execute('SELECT count(*) FROM alerts').fetchone()[0]
+        before = db.execute('SELECT count(*) FROM events').fetchone()[0]
+        before_alerts = db.execute('SELECT count(*) FROM alerts').fetchone()[0]
+        for event, number in parsed:
+            record = asdict(event)
+            record['timestamp'] = event.timestamp.isoformat()
+            db.execute('INSERT OR IGNORE INTO events VALUES (:id,:timestamp,:host,:ip,:username,:service,:kind,:raw)', record)
+            db.execute('INSERT OR IGNORE INTO event_sources VALUES (?,?,?,?,?,?)',
+                       (event.id, digest, Path(source).name, number, year, utc_offset))
+        total = db.execute('SELECT count(*) FROM events').fetchone()[0]
+        self._reconcile(db)
+        count_alerts = db.execute('SELECT count(*) FROM alerts').fetchone()[0]
         return {'inseridos': total - before, 'ignorados': invalid,
                 'repetidos': len(parsed) - (total - before), 'novos_alertas': count_alerts - before_alerts}
 
@@ -234,6 +238,7 @@ class Store:
             row = db.execute('SELECT * FROM reports WHERE alert_id=?', (alert_id,)).fetchone()
             snapshot = json.loads(row['snapshot']) if row else live
             return {
+                'ambiente': self.context,
                 'alerta': alert, 'evidencias': snapshot['eventos'], 'dados_objetivos': snapshot,
                 'regra': snapshot['regra'],
                 'investigacao': json.loads(row['fields']) if row else {key: '' for key in REPORT_FIELDS},

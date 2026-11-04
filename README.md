@@ -2,10 +2,15 @@
 
 Laboratório local de Mini SIEM para detecção e investigação de eventos de autenticação SSH. O projeto implementa um fluxo de trabalho SOC N1: coleta de logs, correlação temporal, priorização de alertas, triagem, aplicação de playbooks e documentação de incidentes.
 
-**Tecnologias:** Python, Streamlit, SQLite, pandas e pytest. O processamento ocorre localmente, sem IA, APIs externas, Docker ou serviços pagos.
+**Tecnologias:** Python, Streamlit, SQLite e pandas; pytest para desenvolvimento. Licença [MIT](LICENSE). O processamento ocorre localmente, sem IA, APIs externas, Docker ou serviços pagos.
+
+![Dashboard local com dados fictícios](assets/dashboard.png)
+
+Captura real da interface local no Chromium. Não há demonstração hospedada na internet.
 
 ## Funcionalidades
 
+- Instalação por scripts Bash e seis cenários fictícios carregados automaticamente, com reinicialização confirmada e dados isolados.
 - Importação de arquivos syslog/auth.log em UTF-8, com normalização para UTC, validação de IPv4/IPv6 e contabilização de linhas inválidas.
 - Detecção de brute force SSH, sucesso após falhas da mesma conta e tentativas contra múltiplos usuários.
 - Metadados de regras inspirados no Sigma e referências a técnicas MITRE ATT&CK.
@@ -18,28 +23,80 @@ Laboratório local de Mini SIEM para detecção e investigação de eventos de a
 
 Cada alerta origina um registro de acompanhamento. A quantidade de incidentes **não indica a quantidade de comprometimentos confirmados**. A classificação depende da investigação manual.
 
-## Instalação
+## Instalação e execução em Linux
 
-Requisitos: Python 3.11 ou superior, `pip` e suporte a `venv`. No Ubuntu, o pacote `python3-venv` fornece o ambiente virtual.
+Requisitos: Python 3.11 ou superior, suporte a `venv` e conexão com o índice de pacotes para a instalação inicial. No Ubuntu, o pacote `python3-venv` fornece o ambiente virtual. Os scripts são executados como usuário comum e recusam `root`; não devem ser chamados com `sudo`.
 
-Na raiz do repositório:
+```bash
+git clone https://github.com/ArthurrCorreia/SOC-One.git
+cd SOC-One
+bash setup.sh
+bash run.sh
+```
+
+A interface fica disponível em `http://127.0.0.1:8501`. O cenário **Visão completa** abre com dados fictícios, sem configurar servidor SSH ou produzir logs. Para encerrar o servidor, basta usar `Ctrl+C` no terminal.
+
+O `setup.sh` cria ou reutiliza `.venv`, verifica a versão do Python e instala somente as dependências da aplicação. O `run.sh` localiza a pasta do projeto, usa o interpretador desse ambiente e restringe o servidor a `127.0.0.1`. Ambos funcionam por `bash`, sem permissão de execução; podem ser chamados a partir de outro diretório usando o caminho do script.
+
+Para desenvolvimento e testes:
+
+```bash
+bash setup.sh --dev
+source .venv/bin/activate
+python -m pytest -q
+```
+
+### Instalação tradicional
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 streamlit run app.py
 ```
 
-A interface fica disponível em `http://127.0.0.1:8501`. A configuração restringe o servidor ao endereço local e desabilita a coleta de estatísticas de uso do Streamlit. O banco é criado em `data/soc_one.db`; não há acesso automático a logs do sistema nem necessidade de permissões de root.
+Na alternativa tradicional, os comandos devem ser executados na raiz do repositório. Para instalar também os testes, utiliza-se `python -m pip install -r requirements-dev.txt`.
 
-## Demonstração e importação
+### Problemas comuns
 
-**Carregar demonstração** importa 16 eventos válidos, ignora uma linha inválida e gera três alertas. O cenário contém atividade normal, cinco falhas consecutivas, sucesso após falhas e um caso compatível com erros legítimos de digitação. Esse último contexto é apenas uma hipótese de exercício e não é inserido como conclusão.
+| Situação | Verificação |
+| --- | --- |
+| Python não encontrado ou antigo | Disponibilidade de `python3` com versão 3.11 ou superior |
+| Falha ao criar `.venv` | Suporte a `python3-venv`/`ensurepip`, permissão de escrita e espaço em disco |
+| Ambiente incompleto ou incompatível | Recriação manual de `.venv`; o script não apaga ambientes existentes |
+| Falha no download de dependências | Conexão, proxy, certificados e acesso ao índice configurado no pip |
+| Porta 8501 ocupada | Encerramento da instância anterior; a aplicação não encerra processos de terceiros |
 
-**Carregar cenário multiusuário** importa cinco falhas contra três contas, gerando uma ocorrência SSH-001 e uma SSH-003. Esses alertas representam hipóteses diferentes sobre a mesma sequência. A carga dos dois arquivos totaliza 21 eventos e cinco alertas. A repetição da carga não duplica registros.
+A aplicação não lê logs do sistema automaticamente e não exige credenciais, APIs, Docker ou privilégios de administrador. A instalação pode acessar o índice de pacotes; o fluxo de investigação não integra serviços externos.
 
-A importação aceita arquivos `.log` ou `.txt` em UTF-8 de até 5 MB. Para logs sem ano ou fuso, os parâmetros de ano e deslocamento UTC são informados no formulário. Logs ISO 8601 com fuso mantêm seu instante original. Arquivos RFC3164 que atravessam a virada do ano devem ser separados antes da importação.
+## Demonstração local
+
+Na barra lateral, **Origem dos dados → Demonstração** permite selecionar um cenário. Os eventos fictícios são carregados automaticamente na primeira abertura; selecionar novamente preserva a investigação salva.
+
+| Cenário | Eventos válidos | Alertas esperados |
+| --- | --- | --- |
+| Visão completa | 16 | 3; uma linha inválida é ignorada |
+| Atividade normal | 3 | Nenhum |
+| Brute force SSH | 5 | 1 × SSH-001 |
+| Autenticação suspeita | 4 | 1 × SSH-002 |
+| Falso positivo (exercício) | 4 | 1 × SSH-002; classificação manual |
+| Tentativas contra múltiplos usuários | 5 | 1 × SSH-001 e 1 × SSH-003 |
+
+O cenário de falso positivo fornece um contexto explicitamente fictício de erros de digitação reconhecidos pela usuária. Esse contexto não é extraído do log nem inserido automaticamente como conclusão. A classificação e a narrativa permanecem sob responsabilidade do analista.
+
+O roteiro de demonstração é: **Eventos → Alertas e incidentes → Relatórios**. A primeira página permite consultar linhas originais; a segunda reúne triagem e playbook; a terceira permite editar, salvar e exportar o documento. As alterações devem ser salvas antes de trocar de página ou ambiente.
+
+### Reinicialização segura
+
+Cada cenário utiliza um banco próprio em `data/demos/<cenario>.db`. A opção **Reiniciar este cenário** exige marcar a confirmação e acionar **Reiniciar demonstração**. A operação apaga triagem, playbook, relatórios e histórico apenas do cenário selecionado, e recarrega seus logs fictícios em uma transação.
+
+O banco local `data/soc_one.db` e os demais cenários não são apagados. Não há opção de reinicialização no ambiente Dados locais. Uma identificação interna do banco e uma geração de reset impedem reiniciar bancos não reconhecidos como demonstração ou reutilizar confirmações antigas de outra sessão.
+
+### Importação de arquivos autorizados
+
+**Origem dos dados → Dados locais** preserva a importação manual de arquivos `.log` ou `.txt` em UTF-8, de até 5 MB. O ambiente fica identificado na interface e nas exportações. Bancos locais de versões anteriores podem conter exemplos já importados; esses registros não são removidos ou reclassificados automaticamente.
+
+Para logs sem ano ou fuso, os parâmetros são informados no formulário. Logs ISO 8601 com fuso mantêm seu instante original. Arquivos RFC3164 que atravessam a virada do ano devem ser separados antes da importação.
 
 O parser reconhece `Failed password`, `Accepted password` e `Accepted publickey` de `sshd`, incluindo `invalid user`. Outros eventos com cabeçalho válido são classificados como `other`. O formato suportado é um subconjunto de syslog/auth.log; não inclui todos os formatos de PAM ou journald.
 
@@ -67,19 +124,19 @@ A importação reavalia os eventos persistidos em ordem temporal. Eventos tardio
 
 ## Gestão de incidentes e playbooks
 
-Na aba **Investigação**, a fila pode ser filtrada por status, severidade, classificação, regra, IP, host e período. A seleção de um alerta apresenta as evidências, o identificador, os metadados da regra e os formulários de acompanhamento.
+Na página **Alertas e incidentes**, a fila pode ser filtrada por status, severidade, classificação, regra, IP, host e período. A seleção de um alerta apresenta as evidências, o identificador, os metadados da regra e os formulários de acompanhamento.
 
 Status disponíveis: **Novo**, **Em análise**, **Escalonado** e **Encerrado**. O encerramento exige justificativa. A classificação é independente do status: **Não classificado**, **Verdadeiro positivo**, **Falso positivo** ou **Inconclusivo**. Nenhuma classificação é atribuída automaticamente pelo motor.
 
 Cada regra oferece um checklist com validação de evidências, consulta de contexto, investigação específica e encaminhamento N1/N2. As etapas concluídas são persistidas; alterações, inclusive desmarcações, ficam no histórico. Uma etapa não aplicável pode ser registrada com justificativa nas observações. O checklist não executa contenção, bloqueios ou comunicações externas.
 
-O histórico registra horário UTC, operação e valores anteriores e posteriores para triagem, playbook, relatório e correlação. Operações manuais são atribuídas a **Analista local**, sem autenticação de identidade. A aplicação não oferece exclusão ou edição do histórico, mas o arquivo SQLite continua modificável por quem tem acesso ao sistema operacional.
+O histórico registra horário UTC, operação e valores anteriores e posteriores para triagem, playbook, relatório e correlação. Operações manuais são atribuídas a **Analista local**, sem autenticação de identidade. A aplicação não oferece edição individual do histórico; a reinicialização confirmada apaga o histórico apenas do cenário simulado. O arquivo SQLite continua modificável por quem tem acesso ao sistema operacional.
 
 Há controle de versão para evitar sobrescritas entre sessões nos formulários de triagem, playbook e relatório. Um conflito exige recarregar a investigação; o estado mais recente é preservado.
 
 ## Relatórios de investigação
 
-O formulário permite editar, salvar e consultar:
+A página **Relatórios** permite selecionar um alerta, editar, salvar e consultar:
 
 - Descrição do ocorrido e linha do tempo da investigação.
 - Evidências adicionais e indicadores, com suas fontes.
@@ -94,16 +151,29 @@ Ao salvar, o relatório recebe uma versão e uma cópia dos dados objetivos. Evi
 
 A exportação Markdown/JSON inclui a narrativa salva e sua cópia de evidências, além do estado atual da triagem, playbook e histórico, identificados como tal. Antes da primeira gravação, a exportação contém os dados atuais e campos manuais vazios. Texto ainda não salvo no formulário não é exportado.
 
+### Exemplo público de resultado
+
+O [relatório fictício em Markdown](examples/incidente_ficticio.md) e sua [versão JSON](examples/incidente_ficticio.json) demonstram o resultado da exportação. Contêm somente logs simulados e narrativa identificada como exercício. Não são evidências de um incidente real.
+
+O exemplo pode ser regenerado sem acessar bancos locais:
+
+```bash
+source .venv/bin/activate
+python -m examples.generate_report
+```
+
+![Fila de alertas e incidentes com dados simulados](assets/incidentes.png)
+
 ## Indicadores e filtros
 
-Os indicadores globais consideram somente detecções que atendem às regras atuais:
+Os indicadores do ambiente selecionado consideram somente detecções que atendem às regras atuais:
 
 - Quantidade de eventos, alertas e incidentes não encerrados.
 - Incidentes com alteração de triagem registrada e quantidade de escalonados.
 - Taxa de encerramento: encerrados divididos pelo total de detecções atuais.
 - Distribuições por severidade, status e classificação, incluindo os ainda não classificados.
 
-O período do gráfico controla a série de eventos por minuto e os IPs com mais falhas. Os filtros das abas de eventos e investigação operam de forma independente. Registros históricos arquivados ficam disponíveis mediante filtro e não compõem as métricas operacionais.
+O período do gráfico controla a série de eventos por minuto e os IPs com mais falhas. Os filtros das páginas de eventos e investigação operam de forma independente. Registros históricos arquivados ficam disponíveis mediante filtro e não compõem as métricas operacionais.
 
 ## Arquitetura
 
@@ -127,7 +197,11 @@ Arquivo autorizado
 | `soc_one/reports.py` | Dados objetivos e exportação Markdown |
 | `soc_one/analytics.py` | Métricas operacionais |
 | `soc_one/ui.py` | Componentes de investigação e gráficos |
-| `app.py` | Dashboard e fluxo de importação |
+| `app.py` | Navegação, escolha do ambiente e importação |
+| `soc_one/demo.py` | Cenários isolados e reinicialização confirmada |
+| `setup.sh` / `run.sh` | Instalação e execução local |
+| `examples/` | Relatório fictício e gerador com banco temporário |
+| `assets/` | Capturas reais da interface com dados simulados |
 | `samples/` | Logs fictícios para demonstração |
 | `tests/` | Testes do núcleo, migração e interface |
 
@@ -142,14 +216,19 @@ Alertas legados são reavaliados pela nova correlação por host e conta. Os que
 ## Testes e validação
 
 ```bash
+bash setup.sh --dev
+source .venv/bin/activate
 python -m pytest -q
-python -m compileall -q app.py soc_one
+python -m compileall -q app.py soc_one examples
 python -m pip check
+bash -n setup.sh run.sh
 ```
 
 A suíte verifica parsing, limites temporais, ordenação, isolamento entre hosts e contas, múltiplos usuários, deduplicação, persistência, migração, histórico, classificação, playbooks, concorrência de edição, relatórios e proveniência. Streamlit AppTest exercita os formulários em bancos temporários.
 
-Os resultados efetivamente executados e os limites de verificação estão em [docs/VALIDATION.md](docs/VALIDATION.md).
+A suíte ampliada foi executada com **52 testes aprovados** em Python 3.14.4, Streamlit 1.66.1 e pandas 3.1.0. A validação inclui instalação limpa em pasta com espaços, execução local por Bash, verificação HTTP, testes do reset com preservação dos outros bancos e inspeção visual no Chromium. As capturas deste README foram produzidas nessa execução, usando dados simulados. Os testes de interface usam Streamlit AppTest em diretórios temporários.
+
+A pasta `docs/` é reservada a materiais locais de estudo e validação, ignorados pelo Git; não é necessária para instalar, executar ou testar o projeto.
 
 ## Limitações
 
@@ -166,3 +245,7 @@ Relatórios e logs podem conter informações sensíveis. O `.gitignore` exclui 
 - [Sigma Rules Specification](https://sigmahq.io/sigma-specification/specification/sigma-rules-specification.html).
 
 Repositório: [ArthurrCorreia/SOC-One](https://github.com/ArthurrCorreia/SOC-One).
+
+## Licença
+
+Distribuído sob a [licença MIT](LICENSE).

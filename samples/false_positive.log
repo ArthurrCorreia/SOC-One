@@ -1,0 +1,4 @@
+Nov  3 12:00:00 lab-ssh sshd[401]: Failed password for maria from 192.0.2.40 port 53001 ssh2
+Nov  3 12:00:30 lab-ssh sshd[402]: Failed password for maria from 192.0.2.40 port 53002 ssh2
+Nov  3 12:01:00 lab-ssh sshd[403]: Failed password for maria from 192.0.2.40 port 53003 ssh2
+Nov  3 12:02:00 lab-ssh sshd[404]: Accepted password for maria from 192.0.2.40 port 53004 ssh2
