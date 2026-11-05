@@ -102,9 +102,9 @@ A identidade visual utiliza grafite, cinza-azulado, tipografia compacta e severi
 
 ### Reinicialização segura
 
-Cada cenário utiliza um banco próprio em `data/demos/<cenario>.db`. A seção **Reiniciar demonstração** exige marcar a confirmação e acionar **Reiniciar demonstração**. A operação apaga triagem, playbook, relatórios e histórico apenas do cenário selecionado, e recarrega seus logs fictícios em uma transação.
+Cada cenário mantém sua investigação isolada. A seção **Reiniciar demonstração** exige marcar a confirmação e acionar **Reiniciar demonstração**. A operação apaga triagem, playbook, relatórios e histórico apenas do cenário selecionado, e recarrega seus logs fictícios em uma transação.
 
-O banco local `data/soc_one.db` e os demais cenários não são apagados. Não há opção de reinicialização no ambiente Dados locais. Uma identificação interna do banco e uma geração de reset impedem reiniciar bancos não reconhecidos como demonstração ou reutilizar confirmações antigas de outra sessão.
+Os dados importados e os demais cenários são preservados. Não há opção de reinicialização no ambiente Dados locais. A aplicação verifica a identidade e a versão do cenário antes de reiniciá-lo, impedindo o uso de confirmações desatualizadas.
 
 ### Importação de arquivos autorizados
 
@@ -224,7 +224,7 @@ Arquivo autorizado
 
 ## Atualização de bancos da primeira versão
 
-A migração ocorre automaticamente ao abrir o banco. É recomendável manter uma cópia de segurança de `data/soc_one.db` com a aplicação parada antes da atualização.
+A migração ocorre automaticamente ao abrir o banco. Antes de atualizar a aplicação, recomenda-se interromper sua execução e realizar uma cópia de segurança dos dados persistidos.
 
 Tabelas e colunas são adicionadas em transação. Eventos, observações e justificativas existentes são preservados. O estado encontrado no banco legado recebe um registro de migração; alterações anteriores à existência do histórico não são reconstruídas.
 
@@ -243,9 +243,7 @@ bash -n setup.sh run.sh
 
 A suíte verifica parsing, limites temporais, ordenação, isolamento entre hosts e contas, múltiplos usuários, deduplicação, persistência, migração, histórico, classificação, playbooks, concorrência de edição, relatórios e proveniência. Streamlit AppTest exercita os formulários em bancos temporários.
 
-A suíte ampliada foi executada com **65 testes aprovados** em Python 3.14.4, Streamlit 1.66.1 e pandas 3.1.0. A validação do redesign inclui os seis cenários simulados, navegação, filtros combinados, período inclusivo, continuidade do caso, formulários, persistência, conflitos de edição e proveniência após chegada tardia de eventos. A interface foi inspecionada no Chromium em 1440 × 1000 e 1280 × 800; as capturas usam somente dados simulados. Streamlit AppTest utiliza diretórios temporários. A versão mínima do Streamlit é 1.66, necessária para as opções nativas de espaçamento do tema.
-
-A pasta `docs/` é reservada a materiais locais de estudo e validação, ignorados pelo Git; não é necessária para instalar, executar ou testar o projeto.
+A cobertura inclui os seis cenários simulados, navegação, filtros combinados, período inclusivo, continuidade do caso, formulários, persistência, conflitos de edição e proveniência após chegada tardia de eventos. Os testes utilizam dados fictícios e ambientes temporários. A versão mínima do Streamlit é 1.66, necessária para as opções nativas de espaçamento do tema.
 
 ## Limitações
 
@@ -253,7 +251,7 @@ O SOC-One é um laboratório educacional, não um SIEM de produção. O históri
 
 As correlações consideram a origem IP e o hostname presente no log, sem resolução de aliases ou comprovação de causalidade. A deduplicação pode colapsar eventos realmente distintos com linhas idênticas no mesmo instante. Ocorrências sucessivas de uma regra não são agregadas em um único caso.
 
-Relatórios e logs podem conter informações sensíveis. O `.gitignore` exclui o banco, ambiente virtual, credenciais e logs externos; somente os dados fictícios de `samples/` devem ser versionados. A aplicação não identifica automaticamente dados sensíveis em exportações.
+Relatórios e logs podem conter informações sensíveis. A aplicação não identifica automaticamente dados sensíveis em exportações. Os exemplos publicados em `samples/` e `examples/` utilizam somente dados fictícios.
 
 ## Referências
 
