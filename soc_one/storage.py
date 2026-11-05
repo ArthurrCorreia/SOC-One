@@ -201,6 +201,13 @@ class Store:
         facts['fontes_ausentes'] = sorted(ids - {s['event_id'] for s in sources})
         return facts
 
+    def evidence(self, alert_id):
+        """Evidências atuais com proveniência, sem atualizar o relatório salvo."""
+        with self.connection() as db:
+            db.execute('BEGIN')
+            self._incident(db, alert_id)
+            return self._objective(db, alert_id)
+
     def save_report(self, alert_id, fields, expected_version=None):
         if set(fields) - set(REPORT_FIELDS) or any(not isinstance(v, str) for v in fields.values()):
             raise ValueError('Campos de relatório inválidos.')

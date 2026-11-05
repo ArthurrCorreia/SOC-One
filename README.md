@@ -18,7 +18,7 @@ Captura real da interface local no Chromium. Não há demonstração hospedada n
 - Incidentes com status, classificação, observações, justificativa de encerramento e histórico de alterações.
 - Playbooks específicos por regra, com etapas manuais de investigação e encaminhamento N1/N2.
 - Relatórios editáveis com narrativa manual, dados objetivos rastreáveis e exportação Markdown/JSON.
-- Indicadores de triagem, severidade e classificação; filtros por período, IP, host, usuário, regra e estado da investigação.
+- Navegação operacional em seis seções, tabelas selecionáveis, indicadores de triagem e filtros combináveis por período UTC, IP, host, usuário, regra e estado da investigação.
 - Persistência SQLite e migração aditiva de bancos da primeira versão.
 
 Cada alerta origina um registro de acompanhamento. A quantidade de incidentes **não indica a quantidade de comprometimentos confirmados**. A classificação depende da investigação manual.
@@ -84,11 +84,25 @@ Na barra lateral, **Origem dos dados → Demonstração** permite selecionar um 
 
 O cenário de falso positivo fornece um contexto explicitamente fictício de erros de digitação reconhecidos pela usuária. Esse contexto não é extraído do log nem inserido automaticamente como conclusão. A classificação e a narrativa permanecem sob responsabilidade do analista.
 
-O roteiro de demonstração é: **Eventos → Alertas e incidentes → Relatórios**. A primeira página permite consultar linhas originais; a segunda reúne triagem e playbook; a terceira permite editar, salvar e exportar o documento. As alterações devem ser salvas antes de trocar de página ou ambiente.
+O roteiro de demonstração é: **Overview → Event Explorer → Alert Queue → Incidents → Reports**. A exploração permite consultar linhas originais; a fila prioriza detecções; a investigação reúne triagem, evidências, linha do tempo, playbook, notas e relatório. **Detection Rules** apresenta as condições implementadas, falsos positivos conhecidos e referências. As alterações devem ser salvas antes de trocar de página ou ambiente.
+
+A identidade visual utiliza grafite, cinza-azulado, tipografia compacta e severidades identificadas por texto e cor. A navegação segue padrões de fila e investigação descritos nas documentações oficiais de [Splunk Mission Control](https://help.splunk.com/en/splunk-enterprise-security-8/user-guide/8.7/mission-control/overview-of-mission-control-in-splunk-enterprise-security), [IBM QRadar](https://www.ibm.com/docs/en/qradar-on-cloud?topic=offenses-offense-investigation) e [Microsoft Sentinel](https://learn.microsoft.com/en-us/azure/sentinel/investigate-incidents), com componentes e identidade próprios.
+
+| Seção | Uso operacional |
+| --- | --- |
+| Overview | Atividade no período, alertas abertos, prioridades e indicadores de triagem |
+| Event Explorer | Pesquisa literal com filtros combinados, campos extraídos, linha bruta e eventos do mesmo IP/host em ±5 minutos |
+| Alert Queue | Pesquisa, ordenação por prioridade/data e seleção do alerta sem ocultar a lista |
+| Incidents | Overview, Evidence, Timeline, Playbook, Notes e Report no mesmo caso |
+| Detection Rules | Consulta das três regras reais; não permite editar regras |
+| Reports | Dados objetivos, edição manual, prévia salva e exportação Markdown/JSON |
+
+![Exploração de eventos simulados](assets/event-explorer.png)
+![Fila operacional de alertas](assets/alert-queue.png)
 
 ### Reinicialização segura
 
-Cada cenário utiliza um banco próprio em `data/demos/<cenario>.db`. A opção **Reiniciar este cenário** exige marcar a confirmação e acionar **Reiniciar demonstração**. A operação apaga triagem, playbook, relatórios e histórico apenas do cenário selecionado, e recarrega seus logs fictícios em uma transação.
+Cada cenário utiliza um banco próprio em `data/demos/<cenario>.db`. A seção **Reiniciar demonstração** exige marcar a confirmação e acionar **Reiniciar demonstração**. A operação apaga triagem, playbook, relatórios e histórico apenas do cenário selecionado, e recarrega seus logs fictícios em uma transação.
 
 O banco local `data/soc_one.db` e os demais cenários não são apagados. Não há opção de reinicialização no ambiente Dados locais. Uma identificação interna do banco e uma geração de reset impedem reiniciar bancos não reconhecidos como demonstração ou reutilizar confirmações antigas de outra sessão.
 
@@ -124,7 +138,7 @@ A importação reavalia os eventos persistidos em ordem temporal. Eventos tardio
 
 ## Gestão de incidentes e playbooks
 
-Na página **Alertas e incidentes**, a fila pode ser filtrada por status, severidade, classificação, regra, IP, host e período. A seleção de um alerta apresenta as evidências, o identificador, os metadados da regra e os formulários de acompanhamento.
+Nas páginas **Alert Queue** e **Incidents**, a fila pode ser filtrada por status, severidade, classificação, regra, IP, host e período. A seleção por linha ou seletor apresenta as evidências, o identificador, o motivo da detecção, os metadados da regra e os formulários de acompanhamento. A ordenação por prioridade coloca casos abertos antes dos encerrados, com maior severidade e ocorrências recentes primeiro. O botão de continuidade abre o mesmo caso em Incidents; filtros conflitantes do destino são limpos e os da fila de origem permanecem disponíveis.
 
 Status disponíveis: **Novo**, **Em análise**, **Escalonado** e **Encerrado**. O encerramento exige justificativa. A classificação é independente do status: **Não classificado**, **Verdadeiro positivo**, **Falso positivo** ou **Inconclusivo**. Nenhuma classificação é atribuída automaticamente pelo motor.
 
@@ -136,7 +150,7 @@ Há controle de versão para evitar sobrescritas entre sessões nos formulários
 
 ## Relatórios de investigação
 
-A página **Relatórios** permite selecionar um alerta, editar, salvar e consultar:
+A página **Reports**, também disponível na aba **Report** de cada incidente, separa **Dados objetivos**, **Editar investigação** e **Prévia salva**. É possível consultar somente documentos salvos e editar os campos:
 
 - Descrição do ocorrido e linha do tempo da investigação.
 - Evidências adicionais e indicadores, com suas fontes.
@@ -166,14 +180,14 @@ python -m examples.generate_report
 
 ## Indicadores e filtros
 
-Os indicadores do ambiente selecionado consideram somente detecções que atendem às regras atuais:
+O topo de Overview apresenta eventos, alertas abertos, casos em análise, críticos abertos e escalonados. Abaixo estão a série temporal, severidade dos alertas abertos, frequência das regras e incidentes recentes. Uma seção expansível preserva contagens de triagem, encerramento, status, classificação e os IPs com mais falhas. Detecções históricas não compõem essas métricas.
 
-- Quantidade de eventos, alertas e incidentes não encerrados.
-- Incidentes com alteração de triagem registrada e quantidade de escalonados.
-- Taxa de encerramento: encerrados divididos pelo total de detecções atuais.
-- Distribuições por severidade, status e classificação, incluindo os ainda não classificados.
+O **Período de análise** na barra lateral controla todas as seções: histórico completo ou intervalo personalizado, inclusive nos limites, em UTC. Eventos são filtrados pelo timestamp; alertas, pelo horário do disparo. As evidências completas do caso permanecem disponíveis, mesmo quando anteriores ao período da fila. Intervalos incompletos ou invertidos impedem a consulta até serem corrigidos.
 
-O período do gráfico controla a série de eventos por minuto e os IPs com mais falhas. Os filtros das páginas de eventos e investigação operam de forma independente. Registros históricos arquivados ficam disponíveis mediante filtro e não compõem as métricas operacionais.
+A pesquisa usa texto literal, sem SPL/AQL. Os filtros de cada seção são combinados por E e preservados durante a navegação no mesmo ambiente. A troca de cenário limpa filtros e rascunhos para evitar misturar investigações. Relações no Event Explorer usam o histórico do ambiente, mesmo IP e host, em até cinco minutos antes/depois; não comprovam causalidade.
+
+![Catálogo de regras implementadas](assets/detection-rules.png)
+![Documentação de incidentes](assets/reports.png)
 
 ## Arquitetura
 
@@ -196,7 +210,10 @@ Arquivo autorizado
 | `soc_one/playbooks.py` | Procedimentos de investigação N1/N2 |
 | `soc_one/reports.py` | Dados objetivos e exportação Markdown |
 | `soc_one/analytics.py` | Métricas operacionais |
-| `soc_one/ui.py` | Componentes de investigação e gráficos |
+| `soc_one/ui.py` | Investigação, formulários, evidências e relatório |
+| `soc_one/ui_components.py` | Cabeçalhos, tabelas, indicadores e componentes visuais comuns |
+| `soc_one/ui_pages.py` | Composição das seis seções e navegação entre casos |
+| `soc_one/viewmodels.py` | Filtros, prioridade e contexto para apresentação, sem alterar registros |
 | `app.py` | Navegação, escolha do ambiente e importação |
 | `soc_one/demo.py` | Cenários isolados e reinicialização confirmada |
 | `setup.sh` / `run.sh` | Instalação e execução local |
@@ -226,13 +243,13 @@ bash -n setup.sh run.sh
 
 A suíte verifica parsing, limites temporais, ordenação, isolamento entre hosts e contas, múltiplos usuários, deduplicação, persistência, migração, histórico, classificação, playbooks, concorrência de edição, relatórios e proveniência. Streamlit AppTest exercita os formulários em bancos temporários.
 
-A suíte ampliada foi executada com **52 testes aprovados** em Python 3.14.4, Streamlit 1.66.1 e pandas 3.1.0. A validação inclui instalação limpa em pasta com espaços, execução local por Bash, verificação HTTP, testes do reset com preservação dos outros bancos e inspeção visual no Chromium. As capturas deste README foram produzidas nessa execução, usando dados simulados. Os testes de interface usam Streamlit AppTest em diretórios temporários.
+A suíte ampliada foi executada com **65 testes aprovados** em Python 3.14.4, Streamlit 1.66.1 e pandas 3.1.0. A validação do redesign inclui os seis cenários simulados, navegação, filtros combinados, período inclusivo, continuidade do caso, formulários, persistência, conflitos de edição e proveniência após chegada tardia de eventos. A interface foi inspecionada no Chromium em 1440 × 1000 e 1280 × 800; as capturas usam somente dados simulados. Streamlit AppTest utiliza diretórios temporários. A versão mínima do Streamlit é 1.66, necessária para as opções nativas de espaçamento do tema.
 
 A pasta `docs/` é reservada a materiais locais de estudo e validação, ignorados pelo Git; não é necessária para instalar, executar ou testar o projeto.
 
 ## Limitações
 
-O SOC-One é um laboratório educacional, não um SIEM de produção. O histórico é reprocessado em memória a cada importação, com persistência local adequada a conjuntos pequenos. Não há coleta contínua, retenção automática, paginação, autenticação multiusuário, trilha inviolável, criptografia do banco ou resposta automática.
+O SOC-One é um laboratório educacional, não um SIEM de produção. O histórico é reprocessado em memória a cada importação, com persistência local adequada a conjuntos pequenos. Não há coleta contínua, retenção automática, paginação, autenticação multiusuário, trilha inviolável, criptografia do banco ou resposta automática. A interface prioriza desktop/notebook; as tabelas usam rolagem interna para conjuntos maiores, e textos extensos podem exigir expansão ou consulta aos detalhes. Rascunhos devem ser salvos antes de mudar de seção ou ambiente.
 
 As correlações consideram a origem IP e o hostname presente no log, sem resolução de aliases ou comprovação de causalidade. A deduplicação pode colapsar eventos realmente distintos com linhas idênticas no mesmo instante. Ocorrências sucessivas de uma regra não são agregadas em um único caso.
 

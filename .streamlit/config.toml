@@ -1,13 +1,20 @@
 [theme]
 base = "dark"
-primaryColor = "#38bdf8"
-backgroundColor = "#0b1220"
-secondaryBackgroundColor = "#162236"
+primaryColor = "#89a9c6"
+backgroundColor = "#141920"
+secondaryBackgroundColor = "#1e2630"
+textColor = "#e1e7ef"
+baseFontSize = 14
+baseRadius = "3px"
+buttonRadius = "3px"
+headingFontSizes = ["1.7rem", "1.35rem", "1.1rem", "1rem", "1rem", "1rem"]
+headingFontWeights = [600, 600, 600, 600, 600, 600]
+paddingTop = "1.25rem"
+paddingBottom = "1.5rem"
 [server]
 address = "127.0.0.1"
 maxUploadSize = 5
 [browser]
 gatherUsageStats = false
-
 [client]
 toolbarMode = "viewer"
